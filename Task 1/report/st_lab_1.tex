@@ -1,0 +1,144 @@
+% XeLaTeX document
+\documentclass[12pt, a4paper]{article}
+\input{packages.tex}
+\usepackage{fontspec}
+\input{borders.tex}
+\renewcommand{\baselinestretch}{1.4} 
+
+\begin{document}
+
+\input{title_page.tex}
+
+\tableofcontents
+\addtocontents{toc}{~\hfill\par}
+\vfill ~
+\setcounter{section}{0}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage 
+\section*{Постановка задачи}
+\addcontentsline{toc}{section}{Постановка задачи}
+
+\indent{\indent Цель лабораторной работы –– проанализировать выборку, построить и обосновать модель закона распределения, которой подчиняются данные.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Ход работы}
+
+\indent{\indent Первоначально, до выдвигания гипотезы о распределении, необходимо визуализировать данные. Они представляют собой вещественнозначную выборку $\{x\}_{i = 1}^n$ объема $n = 60$, все значения положительны. Границы выборки равны $x_{min} \sim 0.005$ и $x_{max} \sim 5.032 $. Гистограмма и эмпирическая функция распределения представлены на рисунке \ref{fig:1_hist_edf}.}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=12cm, height=7cm]{1_hist_edf}
+	\caption{Гистограмма и эмпирическая функция распределения набора данных}
+	\label{fig:1_hist_edf}
+\end{figure}
+
+\indent{ Гистограмма по выборке \ref{fig:1_hist_edf}, очевидно, описывается асимметричным распределением. Вычислим некоторые статистки по формулам \ref{eq:mean} - \ref{eq:kurt}. По результатам из таблицы \ref{tab:stats} можно сказать, что данные сильно положительно скошены ($\gamma_1$ > 1). Значение коэффициента эксцесса указывает на то, что перед нами распределение с тяжелыми хвостами.}
+
+
+\begin{table}[htb]   
+	\centering 
+	\begin{tabular*}{0.5\textwidth}{@{\extracolsep{\fill} } cccc}
+		\toprule
+		$\overline{x}$ & $s$ & $\gamma_1$ & $\gamma_2$ \\ 
+		\midrule
+		0.948 & 1.126 & 1.631 & 5.500 \\ 
+		\bottomrule
+	\end{tabular*}
+	\caption{Статистики по набору данных}
+	\label{tab:stats}
+\end{table}
+
+\begin{equation}
+	\overline{x} = \frac{1}{n}\sum_{i=1}^{n} x_i
+	\label{eq:mean}
+\end{equation}
+
+\begin{equation}
+	s = \sqrt{\frac{1}{n - 1}\sum_{i=1}^{n} (x_i - \overline{x}}
+	\label{eq:s}
+\end{equation}
+
+\begin{equation}
+	\gamma_1 = \frac{\mu_3}{\mu_2^{3/2}}
+	\label{eq:skew}
+\end{equation}
+
+\begin{equation}
+	\gamma_2 = \frac{\mu_4}{\mu_2^2} - 3
+	\label{eq:kurt}
+\end{equation}
+
+\begin{equation}
+	f(x; k) = \frac{1}{2^{(k/2)} \Gamma(k / 2)} x^{k/2 - 1}e^{-x / 2}, \; k = 1, 2, \dots
+	\label{eq:chi}
+\end{equation}
+
+\vspace{1cm}
+
+\indent{ Критерий хи-квадрат требует, чтобы интервалы разбиения содержали не менее чем 5 наблюдений \ref{fig:hist_4_bins}.}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=9cm, height=5cm]{hist_4_bins}
+	\caption{Гистограммы с интервалами, где частоты попадания наблюдений $\ge 5$}
+	\label{fig:hist_4_bins}
+\end{figure}
+
+\vspace{1cm}
+
+\indent{ Для сравнения распределений применим критерий $\chi^2$. Сложная гипотеза $H_0$ звучит так: наблюдения $\{x\}_{i = 1}^n$ порождаются функцией $F(x, \theta), \; \theta \in \mathcal{R}^d$. Для этого посчитаем вероятности попадания в интервалы разбиения, зная истинные функции предполагаемых распределений, и минимизируем статистику $\chi^2$ \ref{eq:chi_stat} по параметру $\theta$. Поскольку гистограмма по построенным данных явно несимметрична, будем проверять гипотезу для несимметричных распределений, а именно: логнормальное, экспоненциальное, гамма-распределение.}
+
+\indent{ Критическое значение статистики $\chi^2$ с 2 степенями свободы для правостороннего теста на уровне значимости 0.05 –– 5.991, с 1 степенью свободы –– 3.841. Приведем полученные значения статистки с оптимизированными параметрами распределения в таблице \ref{tab:p_val}.}
+
+\begin{equation}
+	\chi^2 = \sum_{j=1}^{k}\frac{(n_j - E_j)^2}{E_j} \sim \chi_{k-d-1}^2, \; k = 4, \; d = 1, 2
+	\label{eq:chi_stat}
+\end{equation}
+
+\begin{table}[htb]   
+	\centering 
+	\begin{tabular*}{0.85\textwidth}{@{\extracolsep{\fill} } lcl}
+		\toprule
+		Вид распределения & Статистика $\chi^2$ & Параметры  \\ 
+		\midrule
+		$Lognorm$ & 1.667 $\le 3.841$  & logmean = -0.41, logsd = 1.439 \\ 
+		$Exponential$ & 3.842 $\le 5.991$ & rate = 0.942 \\ 
+		$Gamma$ & 1.066 $\le 3.841$ & shape = 0.564, scale = 1.993\\
+		\bottomrule
+	\end{tabular*}
+	\caption{Оптимизированные статистики для  распределений}
+	\label{tab:p_val}
+\end{table}
+
+\indent{ Таким образом, все статистики в таблице \ref{tab:p_val} меньше соответствующих критических значений критерия, и гипотезы не могут быть отклонены. Наименьшее значение статистики было получено в случае гамма-распределения. Посмтроим график функции плотности распределения с найденными параметрами и гистограмму данных \ref{fig:gamma_hist}.}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=14cm, height=8cm]{gamma_hist}
+	\caption{Гистограммы данных и плотность гамма-распределения}
+	\label{fig:gamma_hist}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Реализация}
+
+\indent{\indent Для расчетов использовались библиотеки языка программирования \textbf{R}.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Заключение}
+\addcontentsline{toc}{section}{Заключение}
+
+\indent{\indent В ходе анализа выборки были выдвинуты и проверены сложные гипотезы о нескольких распределениях. Наиболее блинзким оказалось гамма-распределение с параметрами $k = 0.564, \theta = 1.993$.}
+
+\clearpage
+
+\bibliographystyle{splncs04}
+\bibliography{mybibliography}
+
+
+\end{document}{}

@@ -1,0 +1,193 @@
+% XeLaTeX document
+\documentclass[12pt, a4paper]{article}
+\input{packages.tex}
+\usepackage{fontspec}
+\usepackage{diagbox}
+\input{borders.tex}
+\renewcommand{\baselinestretch}{1.4} 
+
+\begin{document}
+
+\input{title_page.tex}
+
+\tableofcontents
+\addtocontents{toc}{~\hfill\par}
+\vfill ~
+\setcounter{section}{0}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage 
+\section*{Постановка задачи}
+\addcontentsline{toc}{section}{Постановка задачи}
+
+\indent{\indent В данной работе рассматривается задача классификации объектов на основе дискриминантного анализа. . Пусть есть некоторые популяции $W_1, W_2$. Тогда задача состоит в отнесении объекта $w$ на основе вектора признаков $X = {x_1, \dots, x_p}$. Необходимо построить и протестировать классификатор на разных данных:
+
+\begin{enumerate}
+	\item Модельные данные
+	\item Данные из репозитория \\ \url{https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/}
+\end{enumerate}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Ход работы}
+\subsection{Построение дискриминантной функции}
+
+\indent{\indent Сгенерируем обучающие выборки, представляющие популяции $W_1, W_2$, в предположении, что выборки имеют многомерное нормальное распределение:}
+
+\[x \sim N\left(\mu_1, \sum\nolimits_1\right), \;\; x \sim N\left(\mu_2, \sum\nolimits_2\right)\],
+где $\mu_1, \mu_2 \in R^p$ –– векторы средних, $\sum\nolimits_1 = \sum\nolimits_2 \in R^p \times R^p$ –– матрицы ковариаций.
+
+\vspace{1cm}
+
+\indent{Дискриминантная функция имеет вид}
+
+\begin{equation}
+	z(x) = \alpha_1 x_1 + \dots + \alpha_p x_p,
+	\label{eq:discrim_func}
+\end{equation}
+где вектор коэффициентов $\alpha \in R^p$ находится по формуле:
+
+\begin{equation}
+	\alpha = \sum\nolimits^{-1} (\mu_1 - \mu_2)
+	\label{eq:alpha}
+\end{equation}
+
+\indent{Наблюдение из $x_i$ из выборки будем относить к $W_1$, если $z \ge c$, и к $W_2$, если $z < c$, где $c$ –– постоянная.}
+
+\indent{Константу $c$ будем вычислять по формулам:}
+
+\begin{equation}
+	c = \frac{(\xi_1 - \xi_2)^2}{\sigma_z^2},
+	\label{eq:c_formula}
+\end{equation}
+где $\xi_1 = \sum_{j=1}^p \alpha_j \mu_{1_j}, \;\; \xi_2 = \sum_{j=1}^p \alpha_j \mu_{2_j}$ –– средние $z$ для $x \in W_1, W_2$ соответственно, $\sigma_z^2 = \sum_{m = 1}^p \sum_{j = 1}^p \alpha_m \sigma_{mj} \alpha_j$ –– дисперсия
+
+\vspace{1cm}
+
+\indent{Для измерения "расстояния" между двумя популяциями воспользуемся расстоянием Махалонобиса:}
+
+\begin{equation}
+	\Delta^2 = \frac{(\xi_1 - \xi_2)^2}{\sigma_z^2}
+	\label{eq:mahalonobis}
+\end{equation}
+
+\indent{Итак, для решения задачи требуется найти коэффициенты $\alpha_1, \dots, \alpha_p$, минимизарующие $\Delta^2$. Для классификации вектора $X$ будем использовать следующее правило:}
+
+\begin{equation}
+	\begin{aligned}
+	x_i \in W_1: \sum_{i = 1}^p \alpha_i x_i \ge \frac{\xi_1 + \xi_2}{2} + \ln{\frac{q_2}{q_1}} \\
+	x_i \in W_2: \sum_{i = 1}^p \alpha_i x_i < \frac{\xi_1 + \xi_2}{2} + \ln{\frac{q_2}{q_1}},
+	\end{aligned}
+	\label{eq:decision_rule}
+\end{equation}
+где $P(x_i \in W_1) = q_1, \;\; P(x_i \in W_2) = q_2$ –– априорные вероятности
+
+\subsection{Численный эксперимент}
+
+\indent{\indent Проведем два эксперимента на смоделированных данных: в случае, когда данные "хорошо" разделимы и наоборот. Будем считать, что данные "хорошо" разделимы, когда их диапазоны значений векторов средних $\mu$ не пересекаются с учетом дисперсий.} 
+
+\indent{Смоделируем две обучающие выборки объемами $n_1, n_2$ из нормального трехмерного распределения с заданными параметрами: $X_1 \sim N(\mu_1, \sum\nolimits_1), \; X_2 \sim N(\mu_2, \sum\nolimits_2), \; X_1, X_2 \in R^3$. Сгенерируем тестовую выборку, распределенную по трехмерному нормальному распределению, включающую наблюдения из обеих популяций. Объемы выборок $n_1 = n_2 = 150$. Приведем значения $\mu_1, \; \mu_2, \; \sum\nolimits$ для "хорошо" разделимых данных}
+
+\begin{table}[htb]   
+	\begin{minipage}{.4\linewidth}
+		\begin{tabular}{| c | c | c |}
+			\hline
+			1.862 & 0.943 & 0.007 \\ \hline
+			0.943 & 0.521 & -0.061 \\ \hline
+			0.007 &	-0.0614 & 0.108 \\
+			\hline
+		\end{tabular}
+		\caption{Матрица ковариаций для "хорошо" разделимых данных}
+		\label{tab:well_sigma}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{.4\linewidth}
+		\begin{tabular}{| c || c | c | c |}
+			\hline
+			$\mu_1$ & 3.727 & 3.324 & 3.204 \\ \hline
+			$\mu_2$ & 1.365 & 1.235 & 1.030 \\
+			\hline
+		\end{tabular}
+		\caption{Векторы средних для "хорошо" разделимых данных}
+		\label{tab:well_mu}
+	\end{minipage}
+\end{table}
+
+\indent{Сформируем тестовую выборку из смеси данных, распределенных как исходные популяции $W_1, W_2$. Зададим априорные вероятности $q_1 = 0.4, \; q_2 = 0.6$. Объем тестовой выборки $n_{test} = 100$. Представим результат классификации в виде матрицы ошибок:}
+
+\begin{table}[htb]  
+    \centering
+	\begin{tabular}{|l||*{2}{c|}} \hline
+		\backslashbox{Real}{Pred}
+		&\makebox[3em]{$W_1$}&\makebox[3em]{$W_2$}\\\hline\hline
+		$W_1$ & 40 & 0 \\\hline
+		$W_2$ & 0 & 60 \\\hline
+	\end{tabular}
+	\caption{Матрица ошибок для "хорошо" разделимых данных}
+	\label{tab:well_confusion}
+\end{table}
+
+\indent{Исходя из заданных $q_1, \;, q_2, \; n_{test}$ 	получаем, что в тестовой выборке 40 наблюдений популяции $W_1$ и 60 наблюдений популяции $W_2$. По результатам таблицы \ref{tab:well_confusion} делаем вывод, что все объекты были безошибочно классифицированы.}
+
+\indent{Сгенерируем "плохо" разделимые данные: значения векторов средних $\mu$ пересекаются. Тестовую выборку будем формировать как раньше: $q_1 = 0.4, \; q_2 = 0.6$, $n_{test} = 100, \; n_1 = n_2 = 150$. Приведем параметры для генерации данных и матрицу ошибок в виде таблиц:}
+
+\begin{table}[htb]   
+	\begin{minipage}{.4\linewidth}
+		\begin{tabular}{| c | c | c |}
+			\hline
+			1.658 & -0.333 & 1.179 \\ \hline
+			-0.333 & 1.683 & -0.756 \\ \hline
+			1.179 &	-0.756 & 1.101 \\
+			\hline
+		\end{tabular}
+		\caption{Матрица ковариаций для "плохо" разделимых данных}
+		\label{tab:badly_sigma}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{.4\linewidth}
+		\begin{tabular}{| c || c | c | c |}
+			\hline
+			$\mu_1$ & 1.366 & 1.514 & 1.272 \\ \hline
+			$\mu_2$ & 1.268 & 1.126 & 1.083 \\
+			\hline
+		\end{tabular}
+		\caption{Векторы средних для "плохо" разделимых данных}
+		\label{tab:badly_mu}
+	\end{minipage}
+\end{table}
+
+\begin{table}[htb]  
+    \centering
+	\begin{tabular}{|l||*{2}{c|}} \hline
+		\backslashbox{Real}{Pred}
+		&\makebox[3em]{$W_1$}&\makebox[3em]{$W_2$}\\\hline\hline
+		$W_1$ & 20 & 20 \\\hline
+		$W_2$ & 10 & 50 \\\hline
+	\end{tabular}
+	\caption{Матрица ошибок для "плохо" разделимых данных}
+	\label{tab:badly_confusion}
+\end{table}
+
+\indent{По результатам из таблицы \ref{tab:well_confusion} виидим, что из 100 наблюдений тестовой выборки только 70 удалось классифицировать верно.}
+\clearpage
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=8cm, height=8cm]{y_y_hat}
+	\caption{Оцененные и реальные значения редуцированной ($r$) модели}
+	\label{fig:y_y_hat_reduced}
+\end{figure}
+
+\section*{Заключение}
+\addcontentsline{toc}{section}{Заключение}
+
+
+\clearpage
+
+\bibliographystyle{splncs04}
+\bibliography{mybibliography}
+
+
+\end{document}{}

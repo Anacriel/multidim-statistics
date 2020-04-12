@@ -1,0 +1,44 @@
+% Fonts, codecs
+\usepackage{fontspec}
+\usepackage{polyglossia}
+
+\usepackage{hyperref}
+
+% Code listings
+\usepackage[cache=false]{minted}
+\usepackage{listings}
+\usepackage{lstfiracode}
+
+\usepackage{cite}
+
+\usepackage{amsmath, amsfonts, amssymb, amsthm, mathtools}
+\usepackage{titletoc}
+\usepackage{graphicx}
+\usepackage{subfigure}
+
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{caption} 
+
+\setdefaultlanguage{russian}
+\setotherlanguage{english}
+
+% Main document font
+\setmainfont{CMU Serif}
+\newfontfamily\cyrillicfont{CMU Serif}[Script=Cyrillic]
+
+% Code highlighting and listings
+\usemintedstyle{colorful}
+\newenvironment{code}{\captionsetup{type=listing}}{}
+
+% Font for listings
+\setmonofont{[FiraCode-Regular.otf]}[
+  Contextuals=Alternate  % Activate the calt feature
+]
+
+\graphicspath{{Figures/}}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+
+
+
+
